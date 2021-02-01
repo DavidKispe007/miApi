@@ -3,6 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\CreatePresentationRequest;
+use App\Http\Requests\UpdatePresentationRequest;
+use App\Models\Presentation;
+
 use Illuminate\Http\Request;
 
 class PresentationController extends Controller
@@ -12,9 +16,17 @@ class PresentationController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        return "HOLA AQUI";
+        if($request->has('search')) 
+        {
+            $presentations = Presentation::where('name', 'like', '%' . $request->search . '%')->get();
+        } else 
+        {
+            $presentations = Presentation::all();
+        }
+
+        return $presentations;
     }
 
     /**
@@ -33,9 +45,15 @@ class PresentationController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(CreatePresentationRequest $request)
     {
-        //
+        $input = $request->all();
+        Presentation::create($input);
+
+        return response()->json([
+            'res' => true,
+            'msn' => 'Presentación creada correctamente'
+        ], 200);
     }
 
     /**
@@ -44,32 +62,28 @@ class PresentationController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Presentation $presentation)
     {
-        //
+        return $presentation;
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+    
     public function edit($id)
     {
         //
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
+  
+    public function update(UpdatePresentationRequest $request, Presentation $presentation)
     {
-        //
+        $input = $request->all();
+        $presentation->update($input);
+
+        return response()->json([
+            'res' => true,
+            'msn' => 'Registro actualizado correctamente'
+        ], 200);
+
     }
 
     /**
@@ -80,6 +94,11 @@ class PresentationController extends Controller
      */
     public function destroy($id)
     {
-        //
+        Presentation::destroy($id);
+
+        return response()->json([
+            'res' => true,
+            'msn' => 'Registro eliminado correctamente'
+        ], 200);
     }
 }
